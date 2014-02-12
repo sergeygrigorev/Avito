@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using AvitoLibrary.Category;
+using AvitoLibrary.Location;
 
 namespace AvitoLibrary.Advert
 {
@@ -15,6 +16,7 @@ namespace AvitoLibrary.Advert
 		public string Body { get; set; }
 		public int CategoryId { get; set; }
 		public Dictionary<int, int> Parameters { get; set; }
+		public GeoCoords Coordinates { get; set; }
 		public int Price { get; set; }
 		public List<Image> Images { get; set; }
 		public string Url { get; set; }

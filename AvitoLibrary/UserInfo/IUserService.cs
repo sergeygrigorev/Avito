@@ -2,6 +2,6 @@
 {
 	interface IUserService
 	{
-		User Default(bool reload = false);
+		User GetDefault(bool reload = false);
 	}
 }

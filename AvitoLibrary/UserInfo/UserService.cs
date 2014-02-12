@@ -17,7 +17,7 @@ namespace AvitoLibrary.UserInfo
 			this.auth = auth;
 		}
 
-		public User Default(bool reload = false)
+		public User GetDefault(bool reload = false)
 		{
 			if (!reload && def != null)
 				return def;

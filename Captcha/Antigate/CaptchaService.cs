@@ -67,7 +67,9 @@ namespace Captcha.Antigate
 					return captcha;
 				else if (state == CaptchaState.NotReady)
 					Thread.Sleep(interval);
-				else return null;
+				else if (state == CaptchaState.NoFreeWorker)
+					throw new NoFreeWorkerException();
+				else throw new CaptchaErrorException();
 			}
 		}
 
@@ -87,6 +89,8 @@ namespace Captcha.Antigate
 				captcha = captcha.Substring(3);
 				return CaptchaState.Success;
 			}
+			if (captcha == "ERROR_NO_SLOT_AVAILABLE")
+				return CaptchaState.NoFreeWorker;
 			if (captcha.Contains("ERROR"))
 				return CaptchaState.Error;
 			return CaptchaState.NotReady;

@@ -2,6 +2,7 @@ namespace AvitoLibrary.Location
 {
 	public class UserLocation
 	{
+		public Region Region { get; set; }
 		public City City { get; set; }
 		public Metro Metro { get; set; }
 		public District District { get; set; }

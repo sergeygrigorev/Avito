@@ -4,6 +4,7 @@
 	{
 		Success,
 		NotReady,
-		Error
+		Error,
+		NoFreeWorker
 	}
 }

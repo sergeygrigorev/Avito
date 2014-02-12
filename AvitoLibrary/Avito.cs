@@ -20,6 +20,11 @@ namespace AvitoLibrary
 		private ICaptchaService captcha;
 		private List<CategoryGroup> catg;
 
+		public Avito()
+		{
+			//Init();
+		}
+
 		public void Init()
 		{
 			GlobalParseService.SetAuth(auth);
@@ -64,7 +69,11 @@ namespace AvitoLibrary
 
 		public Advertisement Get(int id)
 		{
-			throw new NotImplementedException();
+			AdvertService ads = new AdvertService(auth);
+			Advertisement ad = ads.GetAll().First(p => p.Id == id);
+			if (ad == null)
+				return null;
+			return ad;
 		}
 
 		public bool Post(Advertisement ad)
@@ -135,7 +144,7 @@ namespace AvitoLibrary
 		public User GetUserInfo()
 		{
 			UserService s = new UserService(auth);
-			return s.Default();
+			return s.GetDefault();
 		}
 
 		public UserLocation GetDefaultLocation()

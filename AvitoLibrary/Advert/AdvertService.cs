@@ -11,10 +11,11 @@ using AvitoLibrary.Location;
 using Captcha;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
+using Region = AvitoLibrary.Location.Region;
 
 namespace AvitoLibrary.Advert
 {
-	class AdvertService
+	class AdvertService : IAdvertService
 	{
 		private const string baseUrl = "http://www.avito.ru";
 		private const string baseUrlSecure = "https://www.avito.ru";
@@ -70,7 +71,7 @@ namespace AvitoLibrary.Advert
 			ad.Body = node.SelectSingleNode("//*[@name='description']").InnerText;
 
 			// Name
-			ad.User.Name = "Частное лицо";
+			//ad.User.Name = "Частное лицо";
 
 			// Manager
 			ad.User.Manager = node.SelectSingleNode("//*[@name='manager']").GetAttributeValue("value", "");
@@ -82,14 +83,21 @@ namespace AvitoLibrary.Advert
 			ad.User.DenyEmails = node.SelectSingleNode("//*[@name='allow_mails']").GetAttributeValue("checked", "xxx") == "xxx";
 
 			// Email
-			ad.User.Email = "unstope@narod.ru";
+			//ad.User.Email = "unstope@narod.ru";
 
 			// Location
+			// Region
+
+			ad.Location.Region = new Region
+			{
+				Id = Int32.Parse(node.SelectSingleNode("//*[@id='region']").GetAttributeValue("value", "0"))
+			};
+
 			// City
 			ad.Location.City = new City
-				                   {
-									   Id = Int32.Parse(node.SelectSingleNode("//*[@name='location_id']").GetAttributeValue("value", "0"))
-				                   };
+			{
+				Id = Int32.Parse(node.SelectSingleNode("//*[@name='location_id']").GetAttributeValue("value", "0"))
+			};
 
 			// Metro
 			tmp = node.SelectSingleNode("//*[@name='metro_id']//*[@selected]");
@@ -128,6 +136,19 @@ namespace AvitoLibrary.Advert
 				id = id.Substring(0, id.IndexOf(']'));
 				int value = Int32.Parse(x.SelectSingleNode(".//*[@selected]").GetAttributeValue("value", ""));
 				ad.Parameters.Add(Int32.Parse(id), value);
+			}
+
+			// Geo
+
+			tmp = node.SelectSingleNode("//*[@name='coords[lat]']");
+			if (tmp != null)
+			{
+				ad.Coordinates = new GeoCoords
+				{
+					Latitude = tmp.GetAttributeValue("value", ""),
+					Longitude = node.SelectSingleNode("//*[@name='coords[lng]']").GetAttributeValue("value", ""),
+					Zoom = node.SelectSingleNode("//*[@name='coords[zoom]']").GetAttributeValue("value", "")
+				};
 			}
 
 			// Price
@@ -174,6 +195,7 @@ namespace AvitoLibrary.Advert
 				ad.Id = Int32.Parse(node.SelectSingleNode(".//input").GetAttributeValue("value", "0"));
 				ad.Url = baseUrlSecure + node.SelectSingleNode(".//a[starts-with(@name,'item_')]").GetAttributeValue("href", "");
 				ad.Title = node.SelectSingleNode(".//a[starts-with(@name,'item_')]").InnerText;
+				ad = Get(ad.Url);
 				list.Add(ad);
 			}
 
@@ -219,13 +241,16 @@ namespace AvitoLibrary.Advert
 			Dictionary<string, string> data = new Dictionary<string, string>();
 
 			data.Add("seller_name", ad.User.Name);
+			data.Add("manager", (ad.User.Manager==null)?"":ad.User.Manager);
 			data.Add("phone", ad.User.Phone);
 			data.Add("email", ad.User.Email);
-			data.Add("allow_mails", "1");
+			data.Add("allow_mails", (ad.User.DenyEmails)?"1":"");
 
 			data.Add("location_id", ad.Location.City.Id.ToString());
-			data.Add("metro_id", ad.Location.Metro.Id.ToString());
-
+			data.Add("metro_id", (ad.Location.Metro == null)?"":ad.Location.Metro.Id.ToString());
+			data.Add("district_id", (ad.Location.District == null) ? "" : ad.Location.District.Id.ToString());
+			data.Add("road_id", (ad.Location.Road == null) ? "" : ad.Location.Road.Id.ToString());
+			
 			data.Add("category_id", ad.CategoryId.ToString());
 			foreach (KeyValuePair<int, int> x in ad.Parameters)
 			{
@@ -234,6 +259,13 @@ namespace AvitoLibrary.Advert
 
 			data.Add("title", ad.Title);
 			data.Add("description", ad.Body);
+
+			if (ad.Coordinates != null)
+			{
+				data.Add("coords[lat]", ad.Coordinates.Latitude);
+				data.Add("coords[lng]", ad.Coordinates.Longitude);
+				data.Add("coords[zoom]", ad.Coordinates.Zoom);
+			}
 
 			data.Add("price", ad.Price.ToString());
 
@@ -246,17 +278,40 @@ namespace AvitoLibrary.Advert
 			WebClientEx web = new WebClientEx(auth.CredsCont);
 			web.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
 			web.Headers.Add("Referer", url1);
-			web.UploadString(url1, Stringify(data));
+			try
+			{
+				web.UploadString(url1, Stringify(data));
+			}
+			catch(Exception ex)
+			{
+				return false;
+			}
 
 			string date = ((int)((DateTime.Now - new DateTime(1970, 1, 1).ToLocalTime()).TotalSeconds)).ToString();
 
 			HttpWebRequest req = HttpWebRequest.Create(captchaUrl + date) as HttpWebRequest;
 			req.Referer = url2;
 			req.CookieContainer = auth.CredsCont;
-			HttpWebResponse res = req.GetResponse() as HttpWebResponse;
+			HttpWebResponse res;
+			try
+			{
+				res = req.GetResponse() as HttpWebResponse;
+			}
+			catch(Exception ex)
+			{
+				return false;
+			}
 			Image im = new Bitmap(res.GetResponseStream());
 
-			string cap = captcha.GetCaptcha(im);
+			string cap;
+			try
+			{
+				cap = captcha.GetCaptcha(im);
+			}
+			catch(Exception ex)
+			{
+				return false;
+			}
 
 			data.Clear();
 			data.Add("captcha", cap);
@@ -265,9 +320,10 @@ namespace AvitoLibrary.Advert
 
 			web.Headers.Add("Referer", url2);
 			web.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+			string checkPosting;
 			try
 			{
-				web.UploadString(url2, Stringify(data));
+				checkPosting = web.UploadString(url2, Stringify(data));
 			}
 			catch (Exception ex)
 			{
@@ -325,12 +381,6 @@ namespace AvitoLibrary.Advert
 
 			JObject jo = JObject.Parse(res);
 			return jo["id"].ToString();
-		}
-
-		private string PostImage(string path)
-		{
-			Image im = Image.FromFile(path);
-			return PostImage(im);
 		}
 	}
 }

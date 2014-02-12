@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Advert\Advertisement.cs" />
     <Compile Include="Advert\AdvertService.cs" />
+    <Compile Include="Advert\IAdvertService.cs" />
     <Compile Include="Auth\AuthService.cs" />
     <Compile Include="Auth\IAuthService.cs" />
     <Compile Include="Avito.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="IAvito.cs" />
     <Compile Include="Location\City.cs" />
     <Compile Include="Location\District.cs" />
+    <Compile Include="Location\GeoCoords.cs" />
     <Compile Include="Location\ILocationService.cs" />
     <Compile Include="Location\LocationLoadException.cs" />
     <Compile Include="Location\LocationService.cs" />
@@ -78,7 +80,9 @@
     <Compile Include="UserInfo\User.cs" />
     <Compile Include="UserInfo\UserLoadException.cs" />
     <Compile Include="UserInfo\UserService.cs" />
-    <Compile Include="WebClientEx.cs" />
+    <Compile Include="WebClientEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Avito.csproj.user" />
