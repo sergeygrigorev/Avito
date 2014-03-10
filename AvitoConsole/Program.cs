@@ -1,16 +1,27 @@
 ﻿using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using AvitoLibrary;
 using AvitoLibrary.Advert;
 using AvitoLibrary.Location;
 using AvitoLibrary.UserInfo;
+using Captcha;
 using Captcha.Antigate;
 
 namespace AvitoConsole
 {
+	class lol : ICaptchaService
+	{
+		public string GetCaptcha(Image im)
+		{
+			return "123";
+		}
+	}
+
 	class Program
 	{
 		static void Main(string[] args)
@@ -19,17 +30,36 @@ namespace AvitoConsole
 			a.Login(Settings.login, Settings.password);
 			a.Init();
 			a.SetCaptchaRecognizer(new CaptchaService(Settings.token));
+			//a.SetCaptchaRecognizer(new lol());
 
 			List<Advertisement> all = a.GetAll();
 			User u = a.GetUserInfo();
 			foreach (Advertisement x in all)
 			{
-				if (x.Id == 279872253)
+				if (x.Id == 0)
 					continue;
 				x.User.Name = u.Name;
 				x.User.Email = u.Email;
-				if(a.Post(x))
-					a.Close(x);
+				try
+				{
+					a.Post(x);
+				}
+				catch(WrongAdvertisementException e)
+				{
+					Console.WriteLine("Ad Problems!");
+					continue;
+				}
+				catch(CaptchaException e)
+				{
+					Console.WriteLine("Captcha Problems!");
+					continue;
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine("Other problems!");
+					continue;
+				}
+				a.Close(x);
 			}
 
 

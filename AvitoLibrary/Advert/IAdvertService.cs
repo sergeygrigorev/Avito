@@ -9,9 +9,11 @@ namespace AvitoLibrary.Advert
 	interface IAdvertService
 	{
 		Advertisement Get(string url);
-		List<Advertisement> GetAll();
+		List<Advertisement> GetActive();
+		List<Advertisement> GetClosed();
 		bool Close(int id);
 		bool Delete(int id);
 		bool Post(Advertisement ad);
+	    bool Bump(string url);
 	}
 }

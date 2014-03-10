@@ -45,7 +45,7 @@ namespace AvitoLibrary.Advert
 
 			url = editUrl + url.Substring(url.IndexOf(".ru/") + 4).Replace('/', '_');
 
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Encoding = Encoding.UTF8;
 			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(web.DownloadString(url));
@@ -103,9 +103,9 @@ namespace AvitoLibrary.Advert
 			tmp = node.SelectSingleNode("//*[@name='metro_id']//*[@selected]");
 			if (tmp != null)
 				ad.Location.Metro = new Metro
-					                    {
-						                    Id = Int32.Parse(tmp.GetAttributeValue("value", "0"))
-					                    };
+										{
+											Id = Int32.Parse(tmp.GetAttributeValue("value", "0"))
+										};
 
 			// Road
 			tmp = node.SelectSingleNode("//*[@name='road_id']//*[@selected]");
@@ -165,38 +165,68 @@ namespace AvitoLibrary.Advert
 				{
 					data = web.DownloadData(String.Join("/", arr));
 				}
-				catch(Exception e)
+				catch (Exception e)
 				{
 					return null;
 				}
 				MemoryStream ms = new MemoryStream();
-				ms.Write(data,0,data.Length);
+				ms.Write(data, 0, data.Length);
 				Image im = Image.FromStream(ms);
 				ad.Images.Add(im);
 			}
 
 			// End
-			
+
 			return ad;
 		}
 
-		public List<Advertisement> GetAll()
+		public List<Advertisement> GetActive()
 		{
 			List<Advertisement> list = new List<Advertisement>();
 
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Encoding = Encoding.UTF8;
 			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(web.DownloadString(itemsUrl));
-			HtmlNodeCollection all = doc.DocumentNode.SelectNodes("//div[contains(@class,'item-active')]");
-			foreach (HtmlNode node in all)
+			HtmlNodeCollection all = doc.DocumentNode.SelectNodes("//div[contains(@class,'item')]");
+
+			if (all != null)
 			{
-				Advertisement ad = new Advertisement();
-				ad.Id = Int32.Parse(node.SelectSingleNode(".//input").GetAttributeValue("value", "0"));
-				ad.Url = baseUrlSecure + node.SelectSingleNode(".//a[starts-with(@name,'item_')]").GetAttributeValue("href", "");
-				ad.Title = node.SelectSingleNode(".//a[starts-with(@name,'item_')]").InnerText;
-				ad = Get(ad.Url);
-				list.Add(ad);
+				foreach (HtmlNode node in all)
+				{
+					Advertisement ad = new Advertisement();
+					ad.Id = Int32.Parse(node.SelectSingleNode(".//input").GetAttributeValue("value", "0"));
+					ad.Url = baseUrlSecure + node.SelectSingleNode(".//a[starts-with(@name,'item_')]").GetAttributeValue("href", "");
+					ad.Title = node.SelectSingleNode(".//a[starts-with(@name,'item_')]").InnerText;
+					ad = Get(ad.Url);
+					list.Add(ad);
+				}
+			}
+
+			return list;
+		}
+
+		public List<Advertisement> GetClosed()
+		{
+			List<Advertisement> list = new List<Advertisement>();
+
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
+			web.Encoding = Encoding.UTF8;
+			HtmlDocument doc = new HtmlDocument();
+			doc.LoadHtml(web.DownloadString(oldItemsUrl));
+			HtmlNodeCollection all = doc.DocumentNode.SelectNodes("//div[contains(@class,'item')]");
+
+			if (all != null)
+			{
+				foreach (HtmlNode node in all)
+				{
+					Advertisement ad = new Advertisement();
+					ad.Id = Int32.Parse(node.SelectSingleNode(".//input").GetAttributeValue("value", "0"));
+					ad.Url = baseUrlSecure + node.SelectSingleNode(".//a[starts-with(@name,'item_')]").GetAttributeValue("href", "");
+					ad.Title = node.SelectSingleNode(".//a[starts-with(@name,'item_')]").InnerText;
+					ad = Get(ad.Url);
+					list.Add(ad);
+				}
 			}
 
 			return list;
@@ -204,7 +234,7 @@ namespace AvitoLibrary.Advert
 
 		public bool Close(int id)
 		{
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Headers.Add("Referer", itemsUrl);
 			web.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
 			try
@@ -221,7 +251,7 @@ namespace AvitoLibrary.Advert
 
 		public bool Delete(int id)
 		{
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Headers.Add("Referer", oldItemsUrl);
 			web.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
 			try
@@ -241,16 +271,16 @@ namespace AvitoLibrary.Advert
 			Dictionary<string, string> data = new Dictionary<string, string>();
 
 			data.Add("seller_name", ad.User.Name);
-			data.Add("manager", (ad.User.Manager==null)?"":ad.User.Manager);
+			data.Add("manager", (ad.User.Manager == null) ? "" : ad.User.Manager);
 			data.Add("phone", ad.User.Phone);
 			data.Add("email", ad.User.Email);
-			data.Add("allow_mails", (ad.User.DenyEmails)?"1":"");
+			data.Add("allow_mails", (ad.User.DenyEmails) ? "1" : "");
 
 			data.Add("location_id", ad.Location.City.Id.ToString());
-			data.Add("metro_id", (ad.Location.Metro == null)?"":ad.Location.Metro.Id.ToString());
+			data.Add("metro_id", (ad.Location.Metro == null) ? "" : ad.Location.Metro.Id.ToString());
 			data.Add("district_id", (ad.Location.District == null) ? "" : ad.Location.District.Id.ToString());
 			data.Add("road_id", (ad.Location.Road == null) ? "" : ad.Location.Road.Id.ToString());
-			
+
 			data.Add("category_id", ad.CategoryId.ToString());
 			foreach (KeyValuePair<int, int> x in ad.Parameters)
 			{
@@ -275,17 +305,20 @@ namespace AvitoLibrary.Advert
 			foreach (Image image in ad.Images)
 				data.Add("images[]", PostImage(image));
 
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
 			web.Headers.Add("Referer", url1);
+
 			try
 			{
 				web.UploadString(url1, Stringify(data));
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
-				return false;
+				throw new AvitoNetworkException();
 			}
+			if (!web.ResponseUrl.Contains("confirm"))
+				throw new WrongAdvertisementException();
 
 			string date = ((int)((DateTime.Now - new DateTime(1970, 1, 1).ToLocalTime()).TotalSeconds)).ToString();
 
@@ -297,7 +330,7 @@ namespace AvitoLibrary.Advert
 			{
 				res = req.GetResponse() as HttpWebResponse;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return false;
 			}
@@ -308,7 +341,7 @@ namespace AvitoLibrary.Advert
 			{
 				cap = captcha.GetCaptcha(im);
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return false;
 			}
@@ -320,18 +353,20 @@ namespace AvitoLibrary.Advert
 
 			web.Headers.Add("Referer", url2);
 			web.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
-			string checkPosting;
+
 			try
 			{
-				checkPosting = web.UploadString(url2, Stringify(data));
+				web.UploadString(url2, Stringify(data));
 			}
 			catch (Exception ex)
 			{
-				return false;
+				throw new AvitoNetworkException();
 			}
+			if (!web.ResponseUrl.Contains("finish"))
+				throw new CaptchaException();
 			return true;
 		}
-		
+
 		private string Stringify(IDictionary dict)
 		{
 			StringBuilder s = new StringBuilder();
@@ -350,7 +385,7 @@ namespace AvitoLibrary.Advert
 
 		private string PostImage(Image im)
 		{
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Headers.Add("Content-Type", "multipart/form-data; boundary=bound");
 			web.Headers.Add("Referer", url1);
 
@@ -381,6 +416,11 @@ namespace AvitoLibrary.Advert
 
 			JObject jo = JObject.Parse(res);
 			return jo["id"].ToString();
+		}
+
+		public bool Bump(string url)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

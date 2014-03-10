@@ -19,7 +19,7 @@ namespace AvitoLibrary
 		{
 			CookieContainer cookies = new CookieContainer();
 			cookies.Add(auth.Creds);
-			WebClientEx web = new WebClientEx(cookies);
+			AvitoWebClient web = new AvitoWebClient(cookies);
 			web.Encoding = Encoding.UTF8;
 			string data = web.DownloadString(AddItemUrl);
 			newAdHtml = data;

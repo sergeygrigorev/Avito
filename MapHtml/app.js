@@ -54,8 +54,5 @@ function createMark(coordinates){
 }
 
 function saveData(){
-	document.getElementById("map").setAttribute("data-lat", coords.center[0]);
-	document.getElementById("map").setAttribute("data-lon", coords.center[1]);
-	document.getElementById("map").setAttribute("data-zoom", coords.zoom);
 	document.title = coords.center[0]+','+coords.center[1]+','+coords.zoom;
 }

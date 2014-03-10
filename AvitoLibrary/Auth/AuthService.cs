@@ -14,7 +14,7 @@ namespace AvitoLibrary.Auth
 
 		public bool Login(string login, string password)
 		{
-			WebClientEx web = new WebClientEx(new CookieContainer());
+			AvitoWebClient web = new AvitoWebClient(new CookieContainer());
 
 			web.Headers.Add("Content-Type", "multipart/form-data; boundary=bound");
 			web.Headers.Add("Referer", "https://www.avito.ru/profile/login?next=%2Fprofile");

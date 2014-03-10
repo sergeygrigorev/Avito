@@ -70,7 +70,7 @@ namespace AvitoLibrary
 		public Advertisement Get(int id)
 		{
 			AdvertService ads = new AdvertService(auth);
-			Advertisement ad = ads.GetAll().First(p => p.Id == id);
+			Advertisement ad = ads.GetActive().First(p => p.Id == id);
 			if (ad == null)
 				return null;
 			return ad;
@@ -91,7 +91,7 @@ namespace AvitoLibrary
 		public List<Advertisement> GetAll()
 		{
 			AdvertService ad = new AdvertService(auth);
-			return ad.GetAll();
+			return ad.GetActive();
 		}
 
 		public bool Close(int id)

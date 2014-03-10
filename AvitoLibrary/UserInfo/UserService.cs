@@ -22,7 +22,7 @@ namespace AvitoLibrary.UserInfo
 			if (!reload && def != null)
 				return def;
 			def = new User();
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Encoding = Encoding.UTF8;
 			HtmlDocument doc = new HtmlDocument();
 			try

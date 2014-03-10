@@ -30,7 +30,7 @@ namespace AvitoLibrary.Location
 			if (!reload && def != null)
 				return def;
 			def = new UserLocation();
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Encoding = Encoding.UTF8;
 			HtmlDocument doc = new HtmlDocument();
 			try
@@ -87,7 +87,7 @@ namespace AvitoLibrary.Location
 			if (!reload && regions != null)
 				return regions;
 			regions = new List<Region>();
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Encoding = Encoding.UTF8;
 			string json = "";
 			try
@@ -113,7 +113,7 @@ namespace AvitoLibrary.Location
 
 		public List<City> GetCities(int RegionId)
 		{
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Encoding = Encoding.UTF8;
 			string json = "";
 			try
@@ -147,7 +147,7 @@ namespace AvitoLibrary.Location
 
 		public List<Metro> GetMetros(int CityId)
 		{
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Encoding = Encoding.UTF8;
 			string json = "";
 			try
@@ -181,7 +181,7 @@ namespace AvitoLibrary.Location
 
 		public List<District> GetDistricts(int CityId)
 		{
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Encoding = Encoding.UTF8;
 			string json = "";
 			try
@@ -215,7 +215,7 @@ namespace AvitoLibrary.Location
 
 		public List<Road> GetRoads(int CityId)
 		{
-			WebClientEx web = new WebClientEx(auth.CredsCont);
+			AvitoWebClient web = new AvitoWebClient(auth.CredsCont);
 			web.Encoding = Encoding.UTF8;
 			string json = "";
 			try

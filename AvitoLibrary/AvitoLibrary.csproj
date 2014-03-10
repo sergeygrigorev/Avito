@@ -51,10 +51,14 @@
   <ItemGroup>
     <Compile Include="Advert\Advertisement.cs" />
     <Compile Include="Advert\AdvertService.cs" />
+    <Compile Include="Advert\CaptchaException.cs" />
     <Compile Include="Advert\IAdvertService.cs" />
+    <Compile Include="Advert\WrongAdvertisementException.cs" />
     <Compile Include="Auth\AuthService.cs" />
     <Compile Include="Auth\IAuthService.cs" />
     <Compile Include="Avito.cs" />
+    <Compile Include="AvitoException.cs" />
+    <Compile Include="AvitoNetworkException.cs" />
     <Compile Include="Category\Category.cs" />
     <Compile Include="Category\CategoryGroup.cs" />
     <Compile Include="Category\CategoryService.cs" />
@@ -80,7 +84,7 @@
     <Compile Include="UserInfo\User.cs" />
     <Compile Include="UserInfo\UserLoadException.cs" />
     <Compile Include="UserInfo\UserService.cs" />
-    <Compile Include="WebClientEx.cs">
+    <Compile Include="AvitoWebClient.cs">
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
