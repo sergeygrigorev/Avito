@@ -4,10 +4,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Captcha", "Captcha\Captcha.csproj", "{2C97B9F2-61F1-4592-BB29-1E207DD5FAC4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvitoConsole", "AvitoConsole\AvitoConsole.csproj", "{E7558582-42E0-4BF4-853A-DF9ACD94D04C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2C97B9F2-61F1-4592-BB29-1E207DD5FAC4} = {2C97B9F2-61F1-4592-BB29-1E207DD5FAC4}
+		{71907CFB-35F4-4FA3-A0F7-CE8C8536FBB0} = {71907CFB-35F4-4FA3-A0F7-CE8C8536FBB0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvitoLibrary", "AvitoLibrary\AvitoLibrary.csproj", "{71907CFB-35F4-4FA3-A0F7-CE8C8536FBB0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2C97B9F2-61F1-4592-BB29-1E207DD5FAC4} = {2C97B9F2-61F1-4592-BB29-1E207DD5FAC4}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvitoApp", "AvitoApp\AvitoApp.csproj", "{1F260DD6-B746-4691-9BFC-0646B1A8FB7F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2C97B9F2-61F1-4592-BB29-1E207DD5FAC4} = {2C97B9F2-61F1-4592-BB29-1E207DD5FAC4}
+		{71907CFB-35F4-4FA3-A0F7-CE8C8536FBB0} = {71907CFB-35F4-4FA3-A0F7-CE8C8536FBB0}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

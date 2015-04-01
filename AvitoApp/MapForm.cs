@@ -35,8 +35,17 @@ namespace AvitoApp
 			string lon = node.GetAttributeValue("data-lon", "");
 			string zoom = node.GetAttributeValue("data-zoom", "");
 			*/
-			callback(Inet.DocumentTitle);
+			//callback(Inet.DocumentTitle);
+			if(Ready != null)
+			{
+				var coords = new CoordinateEventArgs(Inet.DocumentTitle);
+				Ready(this, coords);
+			}
 			base.OnClosing(e);
 		}
+
+
+		public event EventHandler<CoordinateEventArgs> Ready;
+
 	}
 }
